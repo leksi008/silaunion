@@ -4,7 +4,13 @@ from rest_framework.decorators import action
 from .models import Contract, ContractStage, ContractDocument
 from .serializers import ContractSerializer, ContractStageSerializer, ContractDocumentSerializer
 from django.shortcuts import get_object_or_404
+from rest_framework import generics, permissions
+from .serializers import UserRegisterSerializer
+from django.core.exceptions import ValidationError
 
+class UserRegisterView(generics.CreateAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = UserRegisterSerializer
 
 class ContractViewSet(viewsets.ModelViewSet):
     queryset = Contract.objects.all()
@@ -57,3 +63,4 @@ class ContractDocumentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         contract = get_object_or_404(Contract, id=self.kwargs.get('contract_id'))
         serializer.save(contract=contract, uploaded_by=self.request.user)
+
