@@ -9,27 +9,29 @@ export class StageList {
 
     render() {
         return `
-            <div class="stages-container">
-                <h3><i class="fas fa-tasks"></i> Этапы договора</h3>
-                <button id="addStage" class="btn-primary btn-small">
-                    <i class="fas fa-plus"></i> Добавить этап
-                </button>
+            <div id="contract-detail" data-contract-id="${this.contractId}">
+                <div class="stages-container">
+                    <h3><i class="fas fa-tasks"></i> Этапы договора</h3>
+                    <button id="addStage" class="btn-primary btn-small">
+                        <i class="fas fa-plus"></i> Добавить этап
+                    </button>
 
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Название</th>
-                                <th>Планируемая дата</th>
-                                <th>Фактическая дата</th>
-                                <th>Статус</th>
-                                <th>Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${this.stages.map(stage => this._renderStageRow(stage)).join('')}
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Название</th>
+                                    <th>Планируемая дата</th>
+                                    <th>Фактическая дата</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${this.stages.map(stage => this._renderStageRow(stage)).join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         `;

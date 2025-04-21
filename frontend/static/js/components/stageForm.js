@@ -48,7 +48,8 @@ export class StageForm {
                 description: formData.get('description'),
                 planned_date: formData.get('planned_date'),
                 actual_date: formData.get('actual_date') || null,
-                is_completed: formData.get('is_completed') === 'on'
+                is_completed: formData.get('is_completed') === 'on',
+                contract: this.contractId
             };
 
             try {

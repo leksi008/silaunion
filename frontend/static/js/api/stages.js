@@ -35,29 +35,27 @@ export class StagesAPI {
     }
 
     static async _fetch(url, options = {}) {
-        const headers = {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            'Content-Type': 'application/json'
-        };
-
-        if (options.body) {
-            console.log('Request Body:', options.body);  // Логирование тела запроса
-        }
-
-        const response = await fetch(url, { ...options, headers });
-
-        if (response.status === 401) {
-            await Auth.refreshToken();
-            return this._fetch(url, options);
-        }
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'Content-Type': 'application/json',
+                ...options.headers,
+            },
+            ...options,
+        });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Error response:', errorData);
-            throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.detail}`);
+            const errorText = await response.text();
+            throw new Error(errorText || 'Ошибка запроса');
         }
 
-        return response.json();
+        // ✅ Безопасно разбираем JSON только если тело есть
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await response.json();
+        }
+
+        return null;
     }
 
 }

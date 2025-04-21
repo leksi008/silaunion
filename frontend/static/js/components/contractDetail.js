@@ -22,7 +22,7 @@ export class ContractDetail {
             : '<p>Нет документов</p>';
 
         return `
-            <div>
+            <div id="contract-detail" data-contract-id="${this.contract.id}">
                 <h2>Договор №${this.contract.number}</h2>
                 <p><strong>Название:</strong> ${this.contract.name}</p>
                 <p><strong>Заказчик:</strong> ${this.contract.customer}</p>
@@ -51,6 +51,7 @@ export class ContractDetail {
                 </button>
             </div>
         `;
+
     }
 
     bindEvents() {
@@ -125,8 +126,7 @@ export class ContractDetail {
         document.addEventListener('click', async (e) => {
             if (e.target.classList.contains('delete-stage-btn')) {
                 const stageId = e.target.dataset.stageId;
-                console.log('Current pathname:', window.location.pathname);
-                const contractId = window.location.pathname.split('/')[2];
+                const contractId = document.getElementById('contract-detail').dataset.contractId;
                 console.log(`Contract ID: ${contractId}, Stage ID: ${stageId}`);
 
                 if (confirm('Удалить эту стадию?')) {
@@ -143,7 +143,7 @@ export class ContractDetail {
         document.addEventListener('click', async (e) => {
             if (e.target.classList.contains('complete-stage-btn')) {
                 const stageId = e.target.dataset.stageId;
-                const contractId = e.target.dataset.contractId;
+                const contractId = document.getElementById('contract-detail').dataset.contractId;
 
                 try {
                     await StagesAPI.markComplete(contractId, stageId);
