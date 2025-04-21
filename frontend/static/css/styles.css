@@ -515,3 +515,20 @@ h3 {
 .document-card button.delete-doc-btn:hover {
     background: #d32f2f;
 }
+
+
+.status {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: white;
+}
+.status.not-started {
+    background-color: #6c757d; /* серый */
+}
+.status.in-progress {
+    background-color: #007bff; /* синий */
+}
+.status.completed {
+    background-color: #28a745; /* зелёный */
+}

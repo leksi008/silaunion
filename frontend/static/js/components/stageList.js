@@ -43,7 +43,7 @@ export class StageList {
                 <td>${stage.name}</td>
                 <td>${Helpers.formatDate(stage.planned_date)}</td>
                 <td>${Helpers.formatDate(stage.actual_date)}</td>
-                <td>${this._renderStatus(stage.is_completed)}</td>
+                <td>${this._renderStatus(stage.is_completed, stage.actual_date)}</td>
                 <td class="actions">
                     ${stage.is_completed ? '' : `
                         <button class="complete-stage-btn" data-stage-id="${stage.id}">Отметить выполненным</button>
@@ -94,9 +94,14 @@ export class StageList {
         // Добавьте обработчики для других кнопок...
     }
 
-    _renderStatus(isCompleted) {
-        return isCompleted
-            ? '<span class="status-badge completed"><i class="fas fa-check-circle"></i> Завершен</span>'
-            : '<span class="status-badge active"><i class="fas fa-spinner"></i> В работе</span>';
+    _renderStatus(isCompleted, actualDate) {
+        if (isCompleted) {
+            return '<span class="status-badge completed"><i class="fas fa-check-circle"></i> Завершен</span>';
+        } else if (!actualDate) {
+            return '<span class="status-badge not-started"><i class="fas fa-hourglass-start"></i> Не начат</span>';
+        } else {
+            return '<span class="status-badge active"><i class="fas fa-spinner"></i> В работе</span>';
+        }
     }
+
 }
