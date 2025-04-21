@@ -50,6 +50,14 @@ class ContractStageViewSet(viewsets.ModelViewSet):
         contract = get_object_or_404(Contract, id=self.kwargs.get('contract_id'))
         serializer.save(contract=contract)
 
+    @action(detail=True, methods=['patch'], url_path='complete')
+    def mark_complete(self, request, contract_id=None, pk=None):
+        stage = self.get_object()
+        stage.is_completed = True
+        stage.save()
+        return Response({'status': 'stage marked as completed'})
+
+
 
 class ContractDocumentViewSet(viewsets.ModelViewSet):
     queryset = ContractDocument.objects.all()

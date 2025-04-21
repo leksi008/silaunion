@@ -1,0 +1,86 @@
+docker dj 
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y \
+    procps \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+
+RUN mkdir -p /app/staticfiles
+
+CMD ["sh", "-c", "python manage.py collectstatic --no-input && gunicorn --bind 0.0.0.0:8000 kursovayaapp.wsgi:application"]
+
+
+
+
+dock ng
+FROM nginx:1.25-alpine
+
+# Установка утилит для диагностики
+RUN apk add --no-cache curl
+
+# Удаляем дефолтный конфиг
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Копируем наш конфиг
+COPY nginx.conf /etc/nginx/conf.d/
+
+# Создаем директории
+RUN mkdir -p /app/staticfiles /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+
+nd conf 
+upstream django {
+    server django:8000; # Используем имя контейнера вместо IP
+}
+
+server {
+    listen 80;
+    server_name localhost;
+    client_max_body_size 100M;
+
+    # Фронтенд
+    location / {
+        root /usr/share/nginx/html;
+        try_files $uri $uri/ /index.html;
+        index index.html;
+        add_header Cache-Control "no-cache, no-store";
+    }
+
+    # API
+    location /api/ {
+        proxy_pass http://django; # Используем upstream
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+        send_timeout 300s;
+    }
+
+    # Статика Django
+    location /static/ {
+        alias /app/staticfiles/;
+        expires 1y;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    # Ошибки
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+}
