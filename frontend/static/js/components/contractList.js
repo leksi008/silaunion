@@ -1,6 +1,8 @@
 import { ContractForm } from '/static/js/components/contractForm.js';
 import { Notifications } from '/static/js/utils/notifications.js';
 import { ContractsAPI } from '/static/js/api/contracts.js';
+import { AuthAPI } from '/static/js/api/auth.js';
+
 
 export class ContractList {
     constructor(contracts) {
@@ -66,6 +68,7 @@ export class ContractList {
     }
 
     bindEvents(app) {
+
         document.getElementById('addContract').addEventListener('click', () => {
             const contractForm = new ContractForm();
             document.getElementById('content').innerHTML = contractForm.render();
@@ -89,6 +92,33 @@ export class ContractList {
                 } catch (err) {
                     Notifications.showError('Не удалось загрузить данные договора');
                     console.error(err);
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-report').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const contractId = btn.dataset.id;
+                const token = localStorage.getItem('access_token');
+
+                try {
+                    const response = await fetch(`/api/contracts/${contractId}/report-pdf/`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Ошибка при получении отчета');
+                    }
+
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                } catch (error) {
+                    console.error("Ошибка:", error);
+                    alert("Не удалось получить отчет. Убедитесь, что вы авторизованы.");
                 }
             });
         });
