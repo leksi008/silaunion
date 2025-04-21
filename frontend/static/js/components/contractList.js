@@ -1,4 +1,6 @@
 import { ContractForm } from '/static/js/components/contractForm.js';
+import { Notifications } from '/static/js/utils/notifications.js';
+import { ContractsAPI } from '/static/js/api/contracts.js';
 
 export class ContractList {
     constructor(contracts) {
@@ -73,6 +75,21 @@ export class ContractList {
         document.querySelectorAll('.btn-view').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 app.showContractDetail(e.target.closest('button').dataset.id);
+            });
+        });
+
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = e.target.closest('button').dataset.id;
+                try {
+                    const contract = await ContractsAPI.getById(id); // получаем данные договора
+                    const contractForm = new ContractForm(contract); // передаём в форму
+                    document.getElementById('content').innerHTML = contractForm.render(); // отрисовываем
+                    contractForm.bindEvents(app); // биндим события
+                } catch (err) {
+                    Notifications.showError('Не удалось загрузить данные договора');
+                    console.error(err);
+                }
             });
         });
 
