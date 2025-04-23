@@ -1,6 +1,8 @@
 
 from pathlib import Path
 import os
+from datetime import timedelta
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,6 +16,15 @@ SECRET_KEY = 'django-insecure-8s&4qz%99)w36b0y7i52g_#3(5m(()m5k-n200zw*1)w0&s_o0
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # токен доступа на 60 минут (можно больше)
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),    # refresh-токен на 30 дней
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
 ALLOWED_HOSTS = []
 CORS_ALLOWED_ORIGINS = [

@@ -3,9 +3,9 @@ import { Notifications } from '/static/js/utils/notifications.js';
 import { ContractsAPI } from '/static/js/api/contracts.js';
 import { AuthAPI } from '/static/js/api/auth.js';
 
-
 export class ContractList {
     constructor(contracts) {
+        this.allContracts = contracts;
         this.contracts = contracts;
     }
 
@@ -13,6 +13,9 @@ export class ContractList {
         return `
             <div class="contracts-container">
                 <div class="contracts-header">
+                    <div class="search-bar">
+                        <input type="text" id="contractSearch" placeholder="Поиск по номеру договора" />
+                    </div>
                     <h2><i class="fas fa-file-contract"></i> Список Договоров</h2>
                     <button id="addContract" class="btn-primary">
                         <i class="fas fa-plus"></i> Добавить
@@ -70,14 +73,36 @@ export class ContractList {
         `;
     }
 
-    bindEvents(app) {
+    _updateTable(app) {
+        const tbody = document.querySelector('.contracts-container tbody');
+        if (tbody) {
+            tbody.innerHTML = this.contracts.map(contract => this._renderContractRow(contract)).join('');
+            this._bindRowEvents(app);
+        }
+    }
 
+    bindEvents(app) {
         document.getElementById('addContract').addEventListener('click', () => {
             const contractForm = new ContractForm();
             document.getElementById('content').innerHTML = contractForm.render();
             contractForm.bindEvents(app);
         });
 
+        const searchInput = document.getElementById('contractSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                this.contracts = this.allContracts.filter(contract =>
+                    contract.number.toLowerCase().includes(query)
+                );
+                this._updateTable(app);
+            });
+        }
+
+        this._bindRowEvents(app);
+    }
+
+    _bindRowEvents(app) {
         document.querySelectorAll('.btn-view').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 app.showContractDetail(e.target.closest('button').dataset.id);
@@ -89,12 +114,11 @@ export class ContractList {
                 const id = e.target.closest('button').dataset.id;
                 try {
                     const contract = await ContractsAPI.getById(id);
-                    const contractForm = new ContractForm(contract); // передаём в форму
-                    document.getElementById('content').innerHTML = contractForm.render(); // отрисовываем
-                    contractForm.bindEvents(app); // биндим события
+                    const contractForm = new ContractForm(contract);
+                    document.getElementById('content').innerHTML = contractForm.render();
+                    contractForm.bindEvents(app);
                 } catch (err) {
                     Notifications.showError('Не удалось загрузить данные договора');
-                    console.error(err);
                 }
             });
         });
@@ -103,58 +127,38 @@ export class ContractList {
             btn.addEventListener('click', async (e) => {
                 const contractId = btn.dataset.id;
                 const token = localStorage.getItem('access_token');
-
                 try {
                     const response = await fetch(`/api/contracts/${contractId}/report-pdf/`, {
                         method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
+                        headers: { 'Authorization': `Bearer ${token}` }
                     });
-
-                    if (!response.ok) {
-                        throw new Error('Ошибка при получении отчета');
-                    }
-
+                    if (!response.ok) throw new Error('Ошибка при получении отчета');
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
                     window.open(url, '_blank');
                 } catch (error) {
-                    console.error("Ошибка:", error);
-                    alert("Не удалось получить отчет. Убедитесь, что вы авторизованы.");
+                    Notifications.showError('Не удалось получить отчет');
                 }
             });
         });
 
-        document.addEventListener('click', async (e) => {
-            const deleteBtn = e.target.closest('.btn-delete');
-            if (deleteBtn) {
-                const contractId = deleteBtn.dataset.id;
-
-                if (!confirm('Вы уверены, что хотите удалить договор?')) return;
-
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const contractId = btn.dataset.id;
+                if (!confirm('Удалить договор?')) return;
                 try {
-                const response = await fetch(`http://127.0.0.1:8000/api/contracts/${contractId}/`, {
-                    method: 'DELETE',
-                    headers: AuthAPI.getAuthHeader(),
-                });
-
-                if (!response.ok) {
-                    throw new Error('Ошибка при удалении договора');
+                    const response = await fetch(`/api/contracts/${contractId}/`, {
+                        method: 'DELETE',
+                        headers: AuthAPI.getAuthHeader(),
+                    });
+                    if (!response.ok) throw new Error();
+                    btn.closest('tr').remove();
+                    Notifications.showSuccess('Договор удалён');
+                } catch {
+                    Notifications.showError('Ошибка при удалении');
                 }
-
-                // Удалим строку из таблицы (предполагаем, что строка — это <tr>)
-                deleteBtn.closest('tr').remove();
-                Notifications.showSuccess('Договор успешно удалён');
-                } catch (error) {
-                Notifications.showError(error.message || 'Ошибка удаления');
-                }
-            }
+            });
         });
-
-
-
-        // Аналогично для других кнопок...
     }
 
     _renderStatusBadge(status) {
