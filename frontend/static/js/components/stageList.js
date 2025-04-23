@@ -11,7 +11,7 @@ export class StageList {
         return `
             <div id="contract-detail" data-contract-id="${this.contractId}">
                 <div class="stages-container">
-                    <h3><i class="fas fa-tasks"></i> Этапы договора</h3>
+                    <h3><i class="fas fa-tasks"></i> Этапы Договора</h3>
                     <button id="addStage" class="btn-primary btn-small">
                         <i class="fas fa-plus"></i> Добавить этап
                     </button>

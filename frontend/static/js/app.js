@@ -3,6 +3,7 @@ import { DocumentsAPI } from '/static/js/api/documents.js';
 import { StagesAPI } from '/static/js/api/stages.js';
 import { ContractsAPI } from '/static/js/api/contracts.js';
 import { LoginForm } from '/static/js/components/loginForm.js';
+import { RegisterForm } from '/static/js/components/registerForm.js';
 import { ContractDetail } from '/static/js/components/contractDetail.js';
 import { Header } from '/static/js/components/header.js';
 import { Notifications } from '/static/js/utils/notifications.js';

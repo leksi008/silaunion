@@ -1,6 +1,7 @@
 import { AuthAPI } from '/static/js/api/auth.js';
+import { Notifications } from '/static/js/utils/notifications.js';
 
-class RegisterForm {
+export class RegisterForm {
   constructor() {
     this.isLoading = false;
   }

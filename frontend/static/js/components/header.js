@@ -5,7 +5,7 @@ export class Header {
   render() {
     return `
       <div class="header-container">
-        <h1><i class="fas fa-file-contract"></i> Мониторинг договоров</h1>
+        <h1><i class="fas fa-file-contract"></i> Мониторинг Договоров</h1>
         <div class="user-actions">
           ${this._renderAuthButtons()}
         </div>

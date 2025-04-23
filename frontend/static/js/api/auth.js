@@ -35,6 +35,28 @@ export class AuthAPI {
         }
     }
 
+    static async register(userData) {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/auth/register/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                const errorMessage = errorData?.detail || 'Ошибка регистрации';
+                throw new Error(errorMessage);
+            }
+
+            return await response.json();
+        } catch (error) {
+            throw error;
+        }
+    }
+
 
 
     static async refreshToken() {

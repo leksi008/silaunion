@@ -13,7 +13,7 @@ export class ContractList {
         return `
             <div class="contracts-container">
                 <div class="contracts-header">
-                    <h2><i class="fas fa-file-contract"></i> Список договоров</h2>
+                    <h2><i class="fas fa-file-contract"></i> Список Договоров</h2>
                     <button id="addContract" class="btn-primary">
                         <i class="fas fa-plus"></i> Добавить
                     </button>
@@ -62,6 +62,9 @@ export class ContractList {
                     <button class="btn-report" data-id="${contract.id}" title="Отчет">
                         <i class="fas fa-file-pdf"></i>
                     </button>
+                    <button class="btn-delete" data-id="${contract.id}" title="Удалить">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </td>
             </tr>
         `;
@@ -85,7 +88,7 @@ export class ContractList {
             btn.addEventListener('click', async (e) => {
                 const id = e.target.closest('button').dataset.id;
                 try {
-                    const contract = await ContractsAPI.getById(id); // получаем данные договора
+                    const contract = await ContractsAPI.getById(id);
                     const contractForm = new ContractForm(contract); // передаём в форму
                     document.getElementById('content').innerHTML = contractForm.render(); // отрисовываем
                     contractForm.bindEvents(app); // биндим события
@@ -122,6 +125,34 @@ export class ContractList {
                 }
             });
         });
+
+        document.addEventListener('click', async (e) => {
+            const deleteBtn = e.target.closest('.btn-delete');
+            if (deleteBtn) {
+                const contractId = deleteBtn.dataset.id;
+
+                if (!confirm('Вы уверены, что хотите удалить договор?')) return;
+
+                try {
+                const response = await fetch(`http://127.0.0.1:8000/api/contracts/${contractId}/`, {
+                    method: 'DELETE',
+                    headers: AuthAPI.getAuthHeader(),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка при удалении договора');
+                }
+
+                // Удалим строку из таблицы (предполагаем, что строка — это <tr>)
+                deleteBtn.closest('tr').remove();
+                Notifications.showSuccess('Договор успешно удалён');
+                } catch (error) {
+                Notifications.showError(error.message || 'Ошибка удаления');
+                }
+            }
+        });
+
+
 
         // Аналогично для других кнопок...
     }

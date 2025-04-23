@@ -60,7 +60,7 @@ export class StageForm {
                     await StagesAPI.create(this.contractId, payload);
                     Notifications.showSuccess('Этап добавлен');
                 }
-                app.showContractDetail(this.contractId);  // перезагрузим детали договора
+                app.showContractDetail(this.contractId);  // перезагрузим детали
             } catch (err) {
                 console.error(err);
                 Notifications.showError('Ошибка при сохранении этапа');
